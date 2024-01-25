@@ -3,6 +3,12 @@
 
 .packages
 .pub/
-.idea/
 
 build/
+.idea/
+.metadata
+*.iml
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+Podfile.lock

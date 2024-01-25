@@ -16,6 +16,12 @@ class PAGView extends StatefulWidget {
   /// flutter动画资源路径
   String? assetName;
 
+  ///需要替换的图片资源，与assetName同package
+  String? replaceImgName;
+
+  ///需要替换哪一帧
+  int replaceImgIndex;
+
   /// asset package
   String? package;
 
@@ -62,6 +68,8 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
+    this.replaceImgName,
+    this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
 
@@ -79,6 +87,8 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
+    this.replaceImgName,
+    this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
 
@@ -96,6 +106,8 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
+    this.replaceImgName,
+    this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
 
@@ -134,6 +146,8 @@ class PAGViewState extends State<PAGView> {
   static const String _argumentPointY = 'y';
   static const String _argumentProgress = 'progress';
   static const String _argumentEvent = 'PAGEvent';
+  static const String _argumentAssetReplaceImg = "assetReplaceImg";
+  static const String _argumentReplaceImgIndex = "assetReplaceImgIndex";
 
   // 监听该函数
   static const String _playCallback = 'PAGCallback';
@@ -147,7 +161,8 @@ class PAGViewState extends State<PAGView> {
   static MethodChannel _channel = (const MethodChannel('flutter_pag_plugin')
     ..setMethodCallHandler((result) {
       if (result.method == _playCallback) {
-        callbackHandlers[result.arguments[_argumentTextureId]]?.call(result.arguments[_argumentEvent]);
+        callbackHandlers[result.arguments[_argumentTextureId]]
+            ?.call(result.arguments[_argumentEvent]);
       }
 
       return Future<dynamic>.value();
@@ -163,11 +178,24 @@ class PAGViewState extends State<PAGView> {
 
   // 初始化
   void newTexture() async {
-    int repeatCount = widget.repeatCount <= 0 && widget.repeatCount != PAGView.REPEAT_COUNT_LOOP ? PAGView.REPEAT_COUNT_DEFAULT : widget.repeatCount;
+    int repeatCount = widget.repeatCount <= 0 &&
+            widget.repeatCount != PAGView.REPEAT_COUNT_LOOP
+        ? PAGView.REPEAT_COUNT_DEFAULT
+        : widget.repeatCount;
     double initProcess = widget.initProgress < 0 ? 0 : widget.initProgress;
 
     try {
-      dynamic result = await _channel.invokeMethod(_nativeInit, {_argumentAssetName: widget.assetName, _argumentPackage: widget.package, _argumentUrl: widget.url, _argumentBytes: widget.bytesData, _argumentRepeatCount: repeatCount, _argumentInitProgress: initProcess, _argumentAutoPlay: widget.autoPlay});
+      dynamic result = await _channel.invokeMethod(_nativeInit, {
+        _argumentAssetName: widget.assetName,
+        _argumentPackage: widget.package,
+        _argumentUrl: widget.url,
+        _argumentBytes: widget.bytesData,
+        _argumentRepeatCount: repeatCount,
+        _argumentInitProgress: initProcess,
+        _argumentAutoPlay: widget.autoPlay,
+        _argumentAssetReplaceImg: widget.replaceImgName,
+        _argumentReplaceImgIndex: widget.replaceImgIndex
+      });
       if (result is Map) {
         _textureId = result[_argumentTextureId];
         rawWidth = result[_argumentWidth] ?? 0;
@@ -228,7 +256,8 @@ class PAGViewState extends State<PAGView> {
     if (!_hasLoadTexture) {
       return;
     }
-    _channel.invokeMethod(_nativeSetProgress, {_argumentTextureId: _textureId, _argumentProgress: progress});
+    _channel.invokeMethod(_nativeSetProgress,
+        {_argumentTextureId: _textureId, _argumentProgress: progress});
   }
 
   /// 获取某一位置的图层
@@ -236,7 +265,13 @@ class PAGViewState extends State<PAGView> {
     if (!_hasLoadTexture) {
       return [];
     }
-    return (await _channel.invokeMethod(_nativeGetPointLayer, {_argumentTextureId: _textureId, _argumentPointX: x, _argumentPointY: y}) as List).map((e) => e.toString()).toList();
+    return (await _channel.invokeMethod(_nativeGetPointLayer, {
+      _argumentTextureId: _textureId,
+      _argumentPointX: x,
+      _argumentPointY: y
+    }) as List)
+        .map((e) => e.toString())
+        .toList();
   }
 
   @override
