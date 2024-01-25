@@ -16,8 +16,7 @@ class PAGView extends StatefulWidget {
   /// flutter动画资源路径
   String? assetName;
 
-  ///需要替换的图片资源，与assetName同package
-  String? replaceImgName;
+  Uint8List? replaceBytesData;
 
   ///需要替换哪一帧
   int replaceImgIndex;
@@ -68,7 +67,7 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
-    this.replaceImgName,
+    this.replaceBytesData,
     this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
@@ -87,7 +86,7 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
-    this.replaceImgName,
+    this.replaceBytesData,
     this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
@@ -106,7 +105,7 @@ class PAGView extends StatefulWidget {
     this.onAnimationCancel,
     this.onAnimationRepeat,
     this.defaultBuilder,
-    this.replaceImgName,
+    this.replaceBytesData,
     this.replaceImgIndex = 0,
     Key? key,
   }) : super(key: key);
@@ -193,7 +192,7 @@ class PAGViewState extends State<PAGView> {
         _argumentRepeatCount: repeatCount,
         _argumentInitProgress: initProcess,
         _argumentAutoPlay: widget.autoPlay,
-        _argumentAssetReplaceImg: widget.replaceImgName,
+        _argumentAssetReplaceImg: widget.replaceBytesData,
         _argumentReplaceImgIndex: widget.replaceImgIndex
       });
       if (result is Map) {

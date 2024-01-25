@@ -203,7 +203,7 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
 
     private void initPag(final MethodCall call, final Result result) {
         String assetName = call.argument(_argumentAssetName);
-        String replaceImgName = call.argument(_argumentAssetReplaceImg);
+        byte[] replaceImgBytes = call.argument(_argumentAssetReplaceImg);
         int replaceImgIndex = call.argument(_argumentReplaceImgIndex);
         byte[] bytes = call.argument(_argumentBytes);
         String url = call.argument(_argumentUrl);
@@ -233,9 +233,11 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
                 return;
             }
             PAGFile composition = PAGFile.Load(context.getAssets(), assetKey);
-            PAGImage replace = createReplacePAGImage(replaceImgName, flutterPackage);
-            if (replace != null) {
-                composition.replaceImage(replaceImgIndex, replace);
+            if (replaceImgBytes != null) {
+                PAGImage replace = PAGImage.FromBytes(replaceImgBytes);
+                if (replace != null) {
+                    composition.replaceImage(replaceImgIndex, replace);
+                }
             }
             initPagPlayerAndCallback(composition, call, result);
         } else if (url != null) {
