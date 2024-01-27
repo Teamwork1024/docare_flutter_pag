@@ -236,7 +236,6 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
             if (replaceImgBytes != null) {
                 PAGImage replace = PAGImage.FromBytes(replaceImgBytes);
                 if (replace != null) {
-                    replace.setScaleMode(3);
                     composition.replaceImage(replaceImgIndex, replace);
                 }
             }
@@ -276,6 +275,7 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         final boolean autoPlay = call.argument(_argumentAutoPlay);
 
         final FlutterPagPlayer pagPlayer = new FlutterPagPlayer();
+        pagPlayer.setScaleMode(3);
         final TextureRegistry.SurfaceTextureEntry entry = textureRegistry.createSurfaceTexture();
         entryMap.put(String.valueOf(entry.id()), entry);
 
@@ -286,6 +286,7 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         final Surface surface = new Surface(surfaceTexture);
         final PAGSurface pagSurface = PAGSurface.FromSurface(surface);
         pagPlayer.setSurface(pagSurface);
+
         pagPlayer.setReleaseListener(new FlutterPagPlayer.ReleaseListener() {
             @Override
             public void onRelease() {
