@@ -72,7 +72,6 @@ class _MyHomeState extends State<MyHome> {
           width: double.infinity,
           height: double.infinity,
           key: assetPagKey,
-          replaceImgName: _assetImage,
           replaceImgIndex: 2,
         ),
       ),

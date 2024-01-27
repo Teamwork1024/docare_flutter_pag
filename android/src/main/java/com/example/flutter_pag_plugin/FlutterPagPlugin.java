@@ -236,6 +236,7 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
             if (replaceImgBytes != null) {
                 PAGImage replace = PAGImage.FromBytes(replaceImgBytes);
                 if (replace != null) {
+                    replace.setScaleMode(3);
                     composition.replaceImage(replaceImgIndex, replace);
                 }
             }
