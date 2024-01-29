@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Display;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -161,6 +164,28 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
+    public static int getScreenWidth(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (windowManager != null) {
+            Display display = windowManager.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            return size.x;
+        }
+        return 0;
+    }
+
+    public static int getScreenHeight(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (windowManager != null) {
+            Display display = windowManager.getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            return size.y;
+        }
+        return 0;
+    }
+
     private PAGImage createPAGImageByAssets(String fileName) {
         AssetManager assetManager = context.getAssets();
         InputStream stream = null;
@@ -236,6 +261,7 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
             if (replaceImgBytes != null) {
                 PAGImage replace = PAGImage.FromBytes(replaceImgBytes);
                 if (replace != null) {
+                    replace.setScaleMode(3);
                     composition.replaceImage(replaceImgIndex, replace);
                 }
             }
@@ -280,12 +306,12 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
 
         pagPlayer.init(composition, repeatCount, initProgress, channel, entry.id());
         SurfaceTexture surfaceTexture = entry.surfaceTexture();
-        surfaceTexture.setDefaultBufferSize(composition.width(), composition.height());
+        surfaceTexture.setDefaultBufferSize(getScreenWidth(context), getScreenHeight(context));
 
         final Surface surface = new Surface(surfaceTexture);
         final PAGSurface pagSurface = PAGSurface.FromSurface(surface);
         pagPlayer.setSurface(pagSurface);
-
+        pagPlayer.setScaleMode(3);
         pagPlayer.setReleaseListener(new FlutterPagPlayer.ReleaseListener() {
             @Override
             public void onRelease() {
