@@ -71,6 +71,9 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
     final static String _argumentAssetName = "assetName";
     final static String _argumentAssetReplaceImg = "assetReplaceImg";
     final static String _argumentReplaceImgIndex = "assetReplaceImgIndex";
+
+    final static String _argumentBufferWidth = "bufferWidth";
+    final static String _argumentBufferHeight = "bufferHeight";
     final static String _argumentPackage = "package";
     final static String _argumentUrl = "url";
     final static String _argumentBytes = "bytesData";
@@ -164,27 +167,6 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
-    public static int getScreenWidth(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        if (windowManager != null) {
-            Display display = windowManager.getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            return size.x;
-        }
-        return 0;
-    }
-
-    public static int getScreenHeight(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        if (windowManager != null) {
-            Display display = windowManager.getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            return size.y;
-        }
-        return 0;
-    }
 
     private PAGImage createPAGImageByAssets(String fileName) {
         AssetManager assetManager = context.getAssets();
@@ -299,14 +281,15 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         final int repeatCount = call.argument(_argumentRepeatCount);
         final double initProgress = call.argument(_argumentInitProgress);
         final boolean autoPlay = call.argument(_argumentAutoPlay);
-
+        int bufferWidth = call.argument(_argumentBufferWidth);
+        int bufferHeight = call.argument(_argumentBufferHeight);
         final FlutterPagPlayer pagPlayer = new FlutterPagPlayer();
         final TextureRegistry.SurfaceTextureEntry entry = textureRegistry.createSurfaceTexture();
         entryMap.put(String.valueOf(entry.id()), entry);
 
         pagPlayer.init(composition, repeatCount, initProgress, channel, entry.id());
         SurfaceTexture surfaceTexture = entry.surfaceTexture();
-        surfaceTexture.setDefaultBufferSize(getScreenWidth(context), getScreenHeight(context));
+        surfaceTexture.setDefaultBufferSize(bufferWidth, bufferHeight);
 
         final Surface surface = new Surface(surfaceTexture);
         final PAGSurface pagSurface = PAGSurface.FromSurface(surface);

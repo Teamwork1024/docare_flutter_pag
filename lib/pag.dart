@@ -21,6 +21,10 @@ class PAGView extends StatefulWidget {
   ///需要替换哪一帧
   int replaceImgIndex;
 
+  int bufferWidth;
+
+  int bufferHeight;
+
   /// asset package
   String? package;
 
@@ -69,6 +73,8 @@ class PAGView extends StatefulWidget {
     this.defaultBuilder,
     this.replaceBytesData,
     this.replaceImgIndex = 0,
+    this.bufferWidth = 0,
+    this.bufferHeight = 0,
     Key? key,
   }) : super(key: key);
 
@@ -88,6 +94,8 @@ class PAGView extends StatefulWidget {
     this.defaultBuilder,
     this.replaceBytesData,
     this.replaceImgIndex = 0,
+    this.bufferWidth = 0,
+    this.bufferHeight = 0,
     Key? key,
   }) : super(key: key);
 
@@ -107,6 +115,8 @@ class PAGView extends StatefulWidget {
     this.defaultBuilder,
     this.replaceBytesData,
     this.replaceImgIndex = 0,
+    this.bufferWidth = 0,
+    this.bufferHeight = 0,
     Key? key,
   }) : super(key: key);
 
@@ -147,6 +157,9 @@ class PAGViewState extends State<PAGView> {
   static const String _argumentEvent = 'PAGEvent';
   static const String _argumentAssetReplaceImg = "assetReplaceImg";
   static const String _argumentReplaceImgIndex = "assetReplaceImgIndex";
+
+  static const String _argumentBufferWidth = "bufferWidth";
+  static const String _argumentBufferHeight = "bufferHeight";
 
   // 监听该函数
   static const String _playCallback = 'PAGCallback';
@@ -193,7 +206,9 @@ class PAGViewState extends State<PAGView> {
         _argumentInitProgress: initProcess,
         _argumentAutoPlay: widget.autoPlay,
         _argumentAssetReplaceImg: widget.replaceBytesData,
-        _argumentReplaceImgIndex: widget.replaceImgIndex
+        _argumentReplaceImgIndex: widget.replaceImgIndex,
+        _argumentBufferWidth: widget.bufferWidth,
+        _argumentBufferHeight: widget.bufferHeight
       });
       if (result is Map) {
         _textureId = result[_argumentTextureId];
