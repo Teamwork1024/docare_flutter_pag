@@ -221,7 +221,9 @@
     TGFlutterPagRender *render = [[TGFlutterPagRender alloc] initWithPagData:pagData progress:progress frameUpdateCallback:^{
          [weakSelf.textures textureFrameAvailable:textureId];
     } eventCallback:^(NSString * event) {
-        [weakSelf.channel invokeMethod:PlayCallback arguments:@{ArgumentTextureId:@(textureId), ArgumentEvent:event}];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [weakSelf.channel invokeMethod:PlayCallback arguments:@{ArgumentTextureId:@(textureId), ArgumentEvent:event}];
+        });
     }];
     [render setRepeatCount:repeatCount];
     textureId = [self.textures registerTexture:render];
