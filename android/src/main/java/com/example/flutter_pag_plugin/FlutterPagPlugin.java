@@ -1,26 +1,17 @@
 package com.example.flutter_pag_plugin;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Display;
 import android.view.Surface;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
 import org.libpag.PAGFile;
-import org.libpag.PAGImage;
 import org.libpag.PAGLayer;
 import org.libpag.PAGSurface;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,11 +60,6 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
     // 参数
     final static String _argumentTextureId = "textureId";
     final static String _argumentAssetName = "assetName";
-    final static String _argumentAssetReplaceImg = "assetReplaceImg";
-    final static String _argumentReplaceImgIndex = "assetReplaceImgIndex";
-
-    final static String _argumentBufferWidth = "bufferWidth";
-    final static String _argumentBufferHeight = "bufferHeight";
     final static String _argumentPackage = "package";
     final static String _argumentUrl = "url";
     final static String _argumentBytes = "bytesData";
@@ -167,51 +153,8 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         }
     }
 
-
-    private PAGImage createPAGImageByAssets(String fileName) {
-        AssetManager assetManager = context.getAssets();
-        InputStream stream = null;
-        try {
-            stream = assetManager.open(fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Bitmap bitmap = BitmapFactory.decodeStream(stream);
-        if (bitmap == null) {
-            return null;
-        }
-
-        return PAGImage.FromBitmap(bitmap);
-    }
-
-    private PAGImage createReplacePAGImage(String replaceImg, String flutterPackage) {
-        if (replaceImg == null || replaceImg.isEmpty()) {
-            return null;
-        }
-        String assetKey = "";
-        if (registrar != null) {
-            if (flutterPackage == null || flutterPackage.isEmpty()) {
-                assetKey = registrar.lookupKeyForAsset(replaceImg);
-            } else {
-                assetKey = registrar.lookupKeyForAsset(replaceImg, flutterPackage);
-            }
-        } else if (flutterAssets != null) {
-            if (flutterPackage == null || flutterPackage.isEmpty()) {
-                assetKey = flutterAssets.getAssetFilePathByName(replaceImg);
-            } else {
-                assetKey = flutterAssets.getAssetFilePathByName(replaceImg, flutterPackage);
-            }
-        }
-        if (assetKey == null) {
-            return null;
-        }
-        return createPAGImageByAssets(assetKey);
-    }
-
     private void initPag(final MethodCall call, final Result result) {
         String assetName = call.argument(_argumentAssetName);
-        byte[] replaceImgBytes = call.argument(_argumentAssetReplaceImg);
-        int replaceImgIndex = call.argument(_argumentReplaceImgIndex);
         byte[] bytes = call.argument(_argumentBytes);
         String url = call.argument(_argumentUrl);
         String flutterPackage = call.argument(_argumentPackage);
@@ -239,14 +182,8 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
                 result.error("-1100", "asset资源加载错误", null);
                 return;
             }
+
             PAGFile composition = PAGFile.Load(context.getAssets(), assetKey);
-            if (replaceImgBytes != null) {
-                PAGImage replace = PAGImage.FromBytes(replaceImgBytes);
-                if (replace != null) {
-                    replace.setScaleMode(3);
-                    composition.replaceImage(replaceImgIndex, replace);
-                }
-            }
             initPagPlayerAndCallback(composition, call, result);
         } else if (url != null) {
             DataLoadHelper.INSTANCE.loadPag(url, new Function1<byte[], Unit>() {
@@ -281,20 +218,18 @@ public class FlutterPagPlugin implements FlutterPlugin, MethodCallHandler {
         final int repeatCount = call.argument(_argumentRepeatCount);
         final double initProgress = call.argument(_argumentInitProgress);
         final boolean autoPlay = call.argument(_argumentAutoPlay);
-        int bufferWidth = call.argument(_argumentBufferWidth);
-        int bufferHeight = call.argument(_argumentBufferHeight);
+
         final FlutterPagPlayer pagPlayer = new FlutterPagPlayer();
         final TextureRegistry.SurfaceTextureEntry entry = textureRegistry.createSurfaceTexture();
         entryMap.put(String.valueOf(entry.id()), entry);
 
         pagPlayer.init(composition, repeatCount, initProgress, channel, entry.id());
         SurfaceTexture surfaceTexture = entry.surfaceTexture();
-        surfaceTexture.setDefaultBufferSize(bufferWidth, bufferHeight);
+        surfaceTexture.setDefaultBufferSize(composition.width(), composition.height());
 
         final Surface surface = new Surface(surfaceTexture);
         final PAGSurface pagSurface = PAGSurface.FromSurface(surface);
         pagPlayer.setSurface(pagSurface);
-        pagPlayer.setScaleMode(3);
         pagPlayer.setReleaseListener(new FlutterPagPlayer.ReleaseListener() {
             @Override
             public void onRelease() {

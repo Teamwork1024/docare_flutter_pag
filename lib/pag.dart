@@ -16,15 +16,6 @@ class PAGView extends StatefulWidget {
   /// flutter动画资源路径
   String? assetName;
 
-  Uint8List? replaceBytesData;
-
-  ///需要替换哪一帧
-  int replaceImgIndex;
-
-  int bufferWidth;
-
-  int bufferHeight;
-
   /// asset package
   String? package;
 
@@ -59,66 +50,54 @@ class PAGView extends StatefulWidget {
   static const int REPEAT_COUNT_DEFAULT = 1; //默认仅播放一次
 
   PAGView.network(
-    this.url, {
-    this.width,
-    this.height,
-    this.repeatCount = REPEAT_COUNT_DEFAULT,
-    this.initProgress = 0,
-    this.autoPlay = false,
-    this.onInit,
-    this.onAnimationStart,
-    this.onAnimationEnd,
-    this.onAnimationCancel,
-    this.onAnimationRepeat,
-    this.defaultBuilder,
-    this.replaceBytesData,
-    this.replaceImgIndex = 0,
-    this.bufferWidth = 0,
-    this.bufferHeight = 0,
-    Key? key,
-  }) : super(key: key);
+      this.url, {
+        this.width,
+        this.height,
+        this.repeatCount = REPEAT_COUNT_DEFAULT,
+        this.initProgress = 0,
+        this.autoPlay = false,
+        this.onInit,
+        this.onAnimationStart,
+        this.onAnimationEnd,
+        this.onAnimationCancel,
+        this.onAnimationRepeat,
+        this.defaultBuilder,
+        Key? key,
+      }) : super(key: key);
 
   PAGView.asset(
-    this.assetName, {
-    this.width,
-    this.height,
-    this.repeatCount = REPEAT_COUNT_DEFAULT,
-    this.initProgress = 0,
-    this.autoPlay = false,
-    this.package,
-    this.onInit,
-    this.onAnimationStart,
-    this.onAnimationEnd,
-    this.onAnimationCancel,
-    this.onAnimationRepeat,
-    this.defaultBuilder,
-    this.replaceBytesData,
-    this.replaceImgIndex = 0,
-    this.bufferWidth = 0,
-    this.bufferHeight = 0,
-    Key? key,
-  }) : super(key: key);
+      this.assetName, {
+        this.width,
+        this.height,
+        this.repeatCount = REPEAT_COUNT_DEFAULT,
+        this.initProgress = 0,
+        this.autoPlay = false,
+        this.package,
+        this.onInit,
+        this.onAnimationStart,
+        this.onAnimationEnd,
+        this.onAnimationCancel,
+        this.onAnimationRepeat,
+        this.defaultBuilder,
+        Key? key,
+      }) : super(key: key);
 
   PAGView.bytes(
-    this.bytesData, {
-    this.width,
-    this.height,
-    this.repeatCount = REPEAT_COUNT_DEFAULT,
-    this.initProgress = 0,
-    this.autoPlay = false,
-    this.package,
-    this.onInit,
-    this.onAnimationStart,
-    this.onAnimationEnd,
-    this.onAnimationCancel,
-    this.onAnimationRepeat,
-    this.defaultBuilder,
-    this.replaceBytesData,
-    this.replaceImgIndex = 0,
-    this.bufferWidth = 0,
-    this.bufferHeight = 0,
-    Key? key,
-  }) : super(key: key);
+      this.bytesData, {
+        this.width,
+        this.height,
+        this.repeatCount = REPEAT_COUNT_DEFAULT,
+        this.initProgress = 0,
+        this.autoPlay = false,
+        this.package,
+        this.onInit,
+        this.onAnimationStart,
+        this.onAnimationEnd,
+        this.onAnimationCancel,
+        this.onAnimationRepeat,
+        this.defaultBuilder,
+        Key? key,
+      }) : super(key: key);
 
   @override
   PAGViewState createState() => PAGViewState();
@@ -155,11 +134,6 @@ class PAGViewState extends State<PAGView> {
   static const String _argumentPointY = 'y';
   static const String _argumentProgress = 'progress';
   static const String _argumentEvent = 'PAGEvent';
-  static const String _argumentAssetReplaceImg = "assetReplaceImg";
-  static const String _argumentReplaceImgIndex = "assetReplaceImgIndex";
-
-  static const String _argumentBufferWidth = "bufferWidth";
-  static const String _argumentBufferHeight = "bufferHeight";
 
   // 监听该函数
   static const String _playCallback = 'PAGCallback';
@@ -173,8 +147,7 @@ class PAGViewState extends State<PAGView> {
   static MethodChannel _channel = (const MethodChannel('flutter_pag_plugin')
     ..setMethodCallHandler((result) {
       if (result.method == _playCallback) {
-        callbackHandlers[result.arguments[_argumentTextureId]]
-            ?.call(result.arguments[_argumentEvent]);
+        callbackHandlers[result.arguments[_argumentTextureId]]?.call(result.arguments[_argumentEvent]);
       }
 
       return Future<dynamic>.value();
@@ -190,26 +163,11 @@ class PAGViewState extends State<PAGView> {
 
   // 初始化
   void newTexture() async {
-    int repeatCount = widget.repeatCount <= 0 &&
-            widget.repeatCount != PAGView.REPEAT_COUNT_LOOP
-        ? PAGView.REPEAT_COUNT_DEFAULT
-        : widget.repeatCount;
+    int repeatCount = widget.repeatCount <= 0 && widget.repeatCount != PAGView.REPEAT_COUNT_LOOP ? PAGView.REPEAT_COUNT_DEFAULT : widget.repeatCount;
     double initProcess = widget.initProgress < 0 ? 0 : widget.initProgress;
 
     try {
-      dynamic result = await _channel.invokeMethod(_nativeInit, {
-        _argumentAssetName: widget.assetName,
-        _argumentPackage: widget.package,
-        _argumentUrl: widget.url,
-        _argumentBytes: widget.bytesData,
-        _argumentRepeatCount: repeatCount,
-        _argumentInitProgress: initProcess,
-        _argumentAutoPlay: widget.autoPlay,
-        _argumentAssetReplaceImg: widget.replaceBytesData,
-        _argumentReplaceImgIndex: widget.replaceImgIndex,
-        _argumentBufferWidth: widget.bufferWidth,
-        _argumentBufferHeight: widget.bufferHeight
-      });
+      dynamic result = await _channel.invokeMethod(_nativeInit, {_argumentAssetName: widget.assetName, _argumentPackage: widget.package, _argumentUrl: widget.url, _argumentBytes: widget.bytesData, _argumentRepeatCount: repeatCount, _argumentInitProgress: initProcess, _argumentAutoPlay: widget.autoPlay});
       if (result is Map) {
         _textureId = result[_argumentTextureId];
         rawWidth = result[_argumentWidth] ?? 0;
@@ -270,8 +228,7 @@ class PAGViewState extends State<PAGView> {
     if (!_hasLoadTexture) {
       return;
     }
-    _channel.invokeMethod(_nativeSetProgress,
-        {_argumentTextureId: _textureId, _argumentProgress: progress});
+    _channel.invokeMethod(_nativeSetProgress, {_argumentTextureId: _textureId, _argumentProgress: progress});
   }
 
   /// 获取某一位置的图层
@@ -279,13 +236,7 @@ class PAGViewState extends State<PAGView> {
     if (!_hasLoadTexture) {
       return [];
     }
-    return (await _channel.invokeMethod(_nativeGetPointLayer, {
-      _argumentTextureId: _textureId,
-      _argumentPointX: x,
-      _argumentPointY: y
-    }) as List)
-        .map((e) => e.toString())
-        .toList();
+    return (await _channel.invokeMethod(_nativeGetPointLayer, {_argumentTextureId: _textureId, _argumentPointX: x, _argumentPointY: y}) as List).map((e) => e.toString()).toList();
   }
 
   @override
